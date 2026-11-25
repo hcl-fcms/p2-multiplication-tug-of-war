@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#172A4D">
+<title>乘數拔河｜郭怡雅小二乘法</title>
+<style>
+:root{
+  --wine:#A32638; --wine-dark:#7e1d2b; --blue:#0798BC; --blue-dark:#056e8c;
+  --navy:#172A4D; --grass:#5C8D46; --cream:#FAF4E8; --gold:#F2C230;
+  --ink:#22314f; --muted:#697178; --sky1:#bfe6f2; --sky2:#eaf7fb;
+  --shadow:0 22px 60px rgba(23,42,77,.18);
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{
+  margin:0;color:var(--ink);
+  font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(242,194,48,.35), transparent 30%),
+    radial-gradient(circle at 88% 6%, rgba(7,152,188,.18), transparent 28%),
+    linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 46%,#dcebcd 78%,#c9dfa9 100%);
+  -webkit-tap-highlight-color:transparent;overflow-x:hidden;
+}
+button{font:inherit}
+button:focus-visible{outline:4px solid rgba(7,152,188,.5);outline-offset:3px}
+.app{min-height:100vh;min-height:100dvh;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));display:grid;place-items:center}
+.shell{width:min(1100px,100%);min-height:min(880px,calc(100dvh - 24px));background:rgba(250,244,232,.96);border:1px solid rgba(23,42,77,.15);border-radius:30px;box-shadow:var(--shadow);overflow:hidden;position:relative;display:flex;flex-direction:column}
+.topbar{position:relative;z-index:5;min-height:78px;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;color:#fff;background:linear-gradient(120deg,var(--wine) 0%,var(--wine-dark) 100%)}
+.brand{display:flex;align-items:center;gap:13px;min-width:0;cursor:pointer;user-select:none}
+.brand-mark{width:50px;height:50px;flex:0 0 50px;border-radius:16px;display:grid;place-items:center;background:var(--gold);color:var(--wine-dark);font-size:26px;box-shadow:inset 0 -5px 0 rgba(0,0,0,.12);transform:rotate(-4deg)}
+.brand h1{margin:0;font:900 clamp(18px,2.3vw,26px)/1.15 "PingFang TC","Noto Sans TC",sans-serif;letter-spacing:.02em}
+.brand p{margin:3px 0 0;opacity:.85;font-size:12.5px}
+.top-actions{display:flex;gap:9px;align-items:center;flex-shrink:0}
+.icon-button{min-width:50px;min-height:50px;padding:0 14px;border:1.5px solid rgba(255,255,255,.28);border-radius:15px;color:#fff;background:rgba(255,255,255,.12);cursor:pointer;font-weight:900;font-size:15px}
+.icon-button:active{transform:translateY(1px)}
+.stage{flex:1;padding:18px;overflow-y:auto;position:relative;z-index:2}
+.panel{max-width:920px;margin:0 auto;background:#fff;border:1.5px solid rgba(23,42,77,.12);border-radius:26px;padding:22px;box-shadow:0 10px 30px rgba(23,42,77,.07)}
+.kicker{display:inline-flex;align-items:center;gap:8px;font-weight:900;font-size:13px;letter-spacing:.06em;color:var(--blue-dark);background:#e3f4fa;border-radius:999px;padding:7px 14px}
+h2.title{margin:12px 0 6px;font-size:clamp(22px,3vw,31px);line-height:1.25}
+.sub{color:var(--muted);font-size:15px;margin:0 0 16px;line-height:1.6}
+.btn{border:none;border-radius:18px;padding:16px 22px;font-weight:900;font-size:17px;cursor:pointer;color:#fff;background:var(--wine);box-shadow:inset 0 -5px 0 rgba(0,0,0,.16),0 6px 16px rgba(163,38,56,.22);display:inline-flex;align-items:center;justify-content:center;gap:10px;text-align:center}
+.btn:active{transform:translateY(2px)}
+.btn.blue{background:var(--blue);box-shadow:inset 0 -5px 0 rgba(0,0,0,.16),0 6px 16px rgba(7,152,188,.25)}
+.btn.gold{background:var(--gold);color:var(--ink)}
+.btn.ghost{background:transparent;color:var(--navy);border:2px dashed rgba(23,42,77,.35);box-shadow:none}
+.btn.small{padding:10px 15px;font-size:14.5px;border-radius:14px}
+.btn:disabled{opacity:.45;cursor:not-allowed}.cont-btn{margin-top:10px;min-width:240px}
+.chip-row{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 4px}
+.mchip{border:2.5px solid rgba(23,42,77,.18);background:#fff;border-radius:18px;padding:12px 6px 10px;width:74px;cursor:pointer;text-align:center;transition:transform .12s,border-color .12s,background .12s;user-select:none}
+.mchip:active{transform:scale(.94)}
+.mchip .n{font-size:26px;font-weight:900;color:var(--navy);line-height:1.1}
+.mchip .d{font-size:11px;color:var(--muted);margin-top:2px;font-weight:700;letter-spacing:.02em}
+.mchip.on{border-color:var(--wine);background:#fdeef0;box-shadow:inset 0 -4px 0 rgba(163,38,56,.14)}
+.mchip.on .n{color:var(--wine)}
+.preset-row{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 4px}
+.opt-row-label{font-weight:900;font-size:15px;margin:16px 0 8px;display:flex;align-items:center;gap:8px}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{border:2px solid rgba(23,42,77,.16);background:#fff;border-radius:14px;padding:10px 16px;font-weight:900;font-size:14.5px;cursor:pointer;color:var(--ink)}
+.seg button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.toggle-row{display:flex;align-items:center;gap:10px;margin:16px 0 4px;font-weight:800;font-size:14.5px;color:var(--ink)}
+.toggle-row input{width:22px;height:22px;accent-color:var(--wine)}
+.startbar{margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.startbar .btn{flex:1;min-width:220px}
+.count-note{font-size:13.5px;color:var(--muted);font-weight:800}
+/* 遊戲畫面 */
+.hud{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;margin-bottom:12px}
+.chip{background:var(--cream);border:1.5px solid rgba(23,42,77,.2);border-radius:999px;padding:8px 15px;font-weight:800;font-size:14px;white-space:nowrap}
+.chip.hot{background:var(--gold);border-color:#d9a413}
+.arena{position:relative;background:linear-gradient(180deg,#e8f6fc 0%,#eef8e4 62%,#d8e9bd 100%);border:2px solid rgba(23,42,77,.12);border-radius:24px;padding:10px 12px 14px;overflow:hidden}
+.arena::before{content:"";position:absolute;left:8%;right:8%;top:16px;height:12px;border-radius:999px;background:rgba(255,255,255,.65)}
+.cloud{position:absolute;font-size:30px;opacity:.85;top:8px;animation:drift 26s linear infinite}
+.cloud.c2{animation-duration:38s;top:30px;font-size:22px}
+@keyframes drift{from{left:-8%}to{left:104%}}
+.track{position:relative;height:120px;margin:26px 4px 4px}
+.goal{position:absolute;top:-12px;bottom:-6px;width:5px;border-radius:4px;background:repeating-linear-gradient(45deg,var(--wine),var(--wine) 6px,#c33f52 6px,#c33f52 12px);opacity:.9}
+.goal.left{left:4%}
+.goal.right{right:4%;background:repeating-linear-gradient(45deg,var(--blue-dark),var(--blue-dark) 6px,#0aa0c6 6px,#0aa0c6 12px)}
+.rope{position:absolute;top:58px;left:4%;right:4%;height:8px;border-radius:999px;background:repeating-linear-gradient(90deg,#c98a3e 0 14px,#b4762f 14px 28px);box-shadow:0 3px 0 rgba(0,0,0,.12)}
+.flag{position:absolute;top:-2px;width:34px;height:64px;margin-left:-17px;transition:left .45s cubic-bezier(.34,1.4,.5,1);z-index:3}
+.flag .cloth{width:30px;height:30px;border-radius:6px 14px 14px 6px;background:var(--gold);border:2.5px solid var(--wine);display:grid;place-items:center;font-size:15px;font-weight:900;color:var(--wine-dark)}
+.flag .pole{width:4px;height:34px;background:var(--navy);border-radius:3px;margin:-2px auto 0}
+.team{position:absolute;bottom:-4px;display:flex;flex-direction:column;align-items:center;gap:2px;transition:transform .3s}
+.team .mascot{font-size:44px;filter:drop-shadow(0 4px 4px rgba(0,0,0,.16))}
+.team .tname{font-size:12px;font-weight:900;background:#fff;border-radius:999px;padding:3px 10px;border:1.5px solid rgba(23,42,77,.16);white-space:nowrap}
+.team.pull-anim .mascot{animation:yank .5s ease}
+@keyframes yank{0%{transform:translateX(0) rotate(0)}30%{transform:translateX(var(--yank,-14px)) rotate(-6deg)}100%{transform:translateX(0)}}
+.team.left{left:calc(4% - 6px)}
+.team.right{right:calc(4% - 6px);flex-direction:column}
+.qcard{background:#fff;border:2px solid rgba(23,42,77,.13);border-radius:24px;padding:18px;margin:16px auto 0;max-width:640px;text-align:center}
+.qtext{font-size:clamp(30px,5vw,44px);font-weight:900;margin:2px 0 4px;letter-spacing:.04em}
+.qtext .m1{color:var(--wine)}
+.qtext .m2{color:var(--blue-dark)}
+.qhelp{color:var(--muted);font-size:13.5px;font-weight:700;margin:0 0 6px}
+.opts{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px}
+.opt{border:2.5px solid rgba(23,42,77,.16);border-radius:18px;background:#fff;padding:18px 10px;font-size:clamp(21px,3vw,28px);font-weight:900;cursor:pointer;color:var(--ink);transition:transform .1s}
+.opt:active{transform:scale(.96)}
+.opt.correct{background:var(--grass);color:#fff;border-color:var(--grass)}
+.opt.wrong{background:#f6d9d5;border-color:var(--wine);color:var(--wine)}
+.opt:disabled{cursor:default}
+.feedback{margin:14px auto 0;max-width:640px;border-radius:16px;padding:13px 16px;font-weight:800;display:none;line-height:1.65;font-size:15.5px;text-align:left}
+.feedback.show{display:block}
+.feedback.ok{background:#e9f4e2;border:1.5px solid rgba(92,141,70,.45)}
+.feedback.no{background:#f9e9e7;border:1.5px solid rgba(163,38,56,.4)}
+.feedback .why{display:block;font-size:14px;color:var(--muted);font-weight:700;margin-top:3px}
+.hint-box{margin:12px auto 0;max-width:640px;background:var(--cream);border:2px dashed rgba(23,42,77,.25);border-radius:16px;padding:12px;display:none}
+.hint-box.show{display:block}
+.hint-title{font-size:13px;font-weight:900;color:var(--muted);margin-bottom:8px}
+.groups{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.group{background:#fff;border:2px solid rgba(23,42,77,.15);border-radius:12px;padding:8px;min-width:64px}
+.group .dots{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;font-size:15px;line-height:1.15}
+.group .glabel{font-size:11.5px;color:var(--muted);font-weight:800;margin-top:4px}
+.result-card{text-align:center;padding:30px 18px}
+.result-emoji{font-size:64px}
+.big-word{font-size:clamp(26px,4vw,38px);font-weight:900;margin:8px 0;color:var(--navy)}
+.big-word.win{color:var(--grass)}
+.big-word.lose{color:var(--wine)}
+.result-stats{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:14px 0}
+.stat{background:var(--cream);border:1.5px solid rgba(23,42,77,.16);border-radius:16px;padding:12px 18px;min-width:110px}
+.stat b{display:block;font-size:26px;color:var(--navy)}
+.stat span{font-size:12.5px;color:var(--muted);font-weight:800}
+.result-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.teacher-note{margin:20px auto 0;max-width:920px;font-size:12.5px;color:var(--muted);border-top:1.5px dashed rgba(23,42,77,.22);padding-top:12px;line-height:1.75}
+.confetti{position:fixed;top:-20px;width:12px;height:18px;border-radius:3px;z-index:50;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(720deg);opacity:.9}}
+.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+@media (max-width:640px){
+  .shell{border-radius:20px}
+  .panel{padding:16px;border-radius:20px}
+  .topbar{padding:10px 12px}
+  .track{height:100px}
+  .team .mascot{font-size:34px}
+  .flag{width:28px;height:56px;margin-left:-14px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand" id="brandHome" title="返主頁">
+        <div class="brand-mark">🪢</div>
+        <div>
+          <h1>乘數拔河・大力王</h1>
+          <p>郭怡雅小二數學｜2 至 9 乘數表任揀</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="icon-button" id="soundBtn" title="音效開關">🔊</button>
+        <button class="icon-button" id="homeBtn" title="主頁">🏠</button>
+      </div>
+    </div>
+    <div class="stage"><div id="screen"></div></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ===================== 題目生成（純函數，供自動測試） ===================== */
+/*GEN-START*/
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function randInt(min, max){
+  return min + Math.floor(Math.random() * (max - min + 1));
+}
+/* 乘式口徑：每份數量 × 份數。
+   選「2」即練「份數 = 2」：例如 5 × 2 = 2 個 5。 */
+function makeQuestion(tables){
+  const m = tables[Math.floor(Math.random() * tables.length)];
+  const a = randInt(1, 10);
+  const ans = a * m;
+  const pool = [];
+  const cands = [a * (m + 1), a * (m - 1), (a + 1) * m, (a - 1) * m,
+                 ans + m, ans - m, ans + a, ans - a, ans + 1, ans - 1, ans + 10, ans - 10];
+  for(const c of shuffle(cands)){
+    if(c > 0 && c !== ans && !pool.includes(c)) pool.push(c);
+    if(pool.length >= 3) break;
+  }
+  let k = 1;
+  while(pool.length < 3){
+    const c = ans + k * (Math.random() < .5 ? 1 : -1) * randInt(2, 9);
+    if(c > 0 && c !== ans && !pool.includes(c)) pool.push(c);
+    k++;
+  }
+  return { a, m, ans, opts: shuffle([ans, pool[0], pool[1], pool[2]]) };
+}
+/*GEN-END*/
+
+/* ===================== 狀態 ===================== */
+const SAVE_KEY = "p2_tug_tables_v1";
+const state = {
+  tables: [2, 3, 5],
+  target: 5,
+  hintOn: false,
+  soundOn: true,
+};
+try { Object.assign(state, JSON.parse(localStorage.getItem(SAVE_KEY) || "{}")); } catch(e){}
+function save(){
+  localStorage.setItem(SAVE_KEY, JSON.stringify({
+    tables: state.tables, target: state.target,
+    hintOn: state.hintOn, soundOn: state.soundOn,
+  }));
+}
+const screen = document.getElementById("screen");
+const $ = (id) => document.getElementById(id);
+const clampPct = (pos) => 50 + (pos / state.target) * 42;
+
+/* ===================== 音效 ===================== */
+let audioCtx = null;
+function beep(freq, dur, type, when, vol){
+  if(!state.soundOn) return;
+  try{
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type || "sine"; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol || .12, audioCtx.currentTime + (when || 0));
+    g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + (when || 0) + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(audioCtx.currentTime + (when || 0));
+    o.stop(audioCtx.currentTime + (when || 0) + dur + .05);
+  }catch(e){}
+}
+const sfx = {
+  correct(){ beep(523,.12); beep(659,.12,"sine",.1); beep(784,.2,"sine",.2); },
+  wrong(){ beep(196,.3,"square",0,.08); beep(147,.35,"square",.12,.08); },
+  streak(){ beep(659,.1,"triangle",0); beep(880,.1,"triangle",.09); beep(1175,.25,"triangle",.18); },
+  win(){ [523,659,784,1047].forEach((f,i)=>beep(f,.22,"triangle",i*.14,.14)); },
+  lose(){ beep(330,.25,"sawtooth",0,.07); beep(262,.3,"sawtooth",.18,.07); beep(196,.45,"sawtooth",.36,.07); },
+  click(){ beep(600,.06,"sine",0,.07); },
+};
+
+/* ===================== 畫面：設定 ===================== */
+function renderSetup(){
+  document.title = "乘數拔河｜郭怡雅小二乘法";
+  const chips = [2,3,4,5,6,7,8,9].map(n =>
+    `<button class="mchip ${state.tables.includes(n) ? "on" : ""}" data-n="${n}" aria-pressed="${state.tables.includes(n)}">
+       <div class="n">${n}</div><div class="d">${n} 的乘法</div>
+     </button>`).join("");
+  const segs = [[3,"快戰 🐣"],[5,"標準 🐻"],[8,"大戰 🐘"]].map(([v,label]) =>
+    `<button class="${state.target === v ? "on" : ""}" data-target="${v}">${label}・先拉 ${v} 格</button>`).join("");
+  screen.innerHTML = `
+  <div class="panel">
+    <span class="kicker">⛹️ 小二數學・乘法鞏固</span>
+    <h2 class="title">揀好乘數，一齊拔河！</h2>
+    <p class="sub">答對一題，我哋隊就拉繩一格；答錯就會被對手拉走。<br>旗幟拉過你嗰邊白線就贏！連續答對 3 題有<strong>大力一拉</strong>！</p>
+    <div class="chip-row" id="chipRow">${chips}</div>
+    <div class="preset-row">
+      <button class="btn small ghost" data-preset="all">✅ 全選 2–9</button>
+      <button class="btn small ghost" data-preset="23">只揀 2 同 3</button>
+      <button class="btn small ghost" data-preset="none">❌ 全部清除</button>
+      <span class="count-note" id="countNote"></span>
+    </div>
+    <div class="opt-row-label">🏁 戰況長度</div>
+    <div class="seg" id="segTarget">${segs}</div>
+    <label class="toggle-row"><input type="checkbox" id="hintToggle" ${state.hintOn ? "checked" : ""}> 顯示分組提示圖（份份分明，答題前可睇）</label>
+    <div class="startbar">
+      <button class="btn" id="startBtn" disabled>🪢 開始拔河！</button>
+    </div>
+    <div class="teacher-note">
+      教學口徑：乘式一律「每份數量 × 份數」（例：2 個 3 寫成 3 × 2），與課堂 2N3 教學一致；本遊戲不教授乘法交換性質。
+      純課堂鞏固用途，不收集任何學生資料，只在本機記住設定。
+    </div>
+  </div>`;
+  updateCount();
+  $("chipRow").addEventListener("click", (e) => {
+    const b = e.target.closest(".mchip"); if(!b) return;
+    const n = +b.dataset.n;
+    const i = state.tables.indexOf(n);
+    if(i >= 0) state.tables.splice(i,1); else state.tables.push(n);
+    b.classList.toggle("on"); b.setAttribute("aria-pressed", state.tables.includes(n));
+    sfx.click(); updateCount(); save();
+  });
+  $("segTarget").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-target]"); if(!b) return;
+    state.target = +b.dataset.target; sfx.click(); save();
+    $("segTarget").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+  });
+  document.querySelectorAll("[data-preset]").forEach(b => b.addEventListener("click", () => {
+    const p = b.dataset.preset;
+    state.tables = p === "all" ? [2,3,4,5,6,7,8,9] : p === "23" ? [2,3] : [];
+    sfx.click(); renderSetup(); save();
+  }));
+  $("hintToggle").addEventListener("change", (e) => { state.hintOn = e.target.checked; save(); });
+  $("startBtn").addEventListener("click", startGame);
+}
+function updateCount(){
+  const btn = $("startBtn"), note = $("countNote");
+  if(state.tables.length === 0){
+    btn.disabled = true; note.textContent = "至少揀一個乘數先開得波！";
+  }else{
+    btn.disabled = false;
+    note.textContent = `已揀 ${state.tables.length} 個乘數：${state.tables.slice().sort((a,b)=>a-b).join("、")}`;
+  }
+}
+
+/* ===================== 畫面：拔河 ===================== */
+const TEAMS = {
+  left:  { name: "小熊隊（我哋）",  emoji: "🐻" },
+  right: { name: "狐狸隊（對手）", emoji: "🦊" },
+};
+let game = null;
+function startGame(){
+  if(state.tables.length === 0) return;
+  game = { pos: 0, streak: 0, streakMax: 0, right: 0, wrong: 0, q: null, locked: false };
+  document.title = "乘數拔河｜比緊賽！";
+  screen.innerHTML = `
+  <div class="hud">
+    <span class="chip">⚔️ 邊個先拉 <b>${state.target}</b> 格就贏</span>
+    <span class="chip" id="streakChip">🔥 連對 0</span>
+    <span class="chip" id="scoreChip">🐻 ${game.right} : ${game.wrong} 🦊</span>
+  </div>
+  <div class="arena" id="arena">
+    <span class="cloud">☁️</span><span class="cloud c2">⛅</span>
+    <div class="team left" id="teamL" style="--yank:-14px"><div class="mascot">${TEAMS.left.emoji}</div><div class="tname">${TEAMS.left.name}</div></div>
+    <div class="team right" id="teamR" style="--yank:14px"><div class="mascot">${TEAMS.right.emoji}</div><div class="tname">${TEAMS.right.name}</div></div>
+    <div class="track">
+      <div class="goal left"></div><div class="goal right"></div>
+      <div class="rope"></div>
+      <div class="flag" id="flag" style="left:50%"><div class="cloth">🏆</div><div class="pole"></div></div>
+    </div>
+  </div>
+  <div class="qcard">
+    <p class="qhelp">睇下呢題乘法，答案係邊個？</p>
+    <div class="qtext" id="qtext"></div>
+    <div class="opts" id="opts"></div>
+  </div>
+  <div class="hint-box" id="hintBox"></div>
+  <div class="feedback" id="feedback"></div>`;
+  nextQuestion();
+}
+function drawRope(){
+  const flag = $("flag");
+  if(flag) flag.style.left = clampPct(game.pos) + "%";
+  $("scoreChip").textContent = `🐻 ${game.right} : ${game.wrong} 🦊`;
+  $("streakChip").textContent = `🔥 連對 ${game.streak}`;
+  $("streakChip").classList.toggle("hot", game.streak >= 2);
+}
+function nextQuestion(){
+  game.q = makeQuestion(state.tables);
+  game.locked = false;
+  const { a, m, opts } = game.q;
+  $("qtext").innerHTML = `<span class="m1">${a}</span> × <span class="m2">${m}</span> = ?`;
+  $("feedback").className = "feedback"; $("feedback").textContent = "";
+  $("opts").innerHTML = opts.map((o,i) =>
+    `<button class="opt" data-v="${o}">${o}</button>`).join("");
+  const hb = $("hintBox");
+  if(state.hintOn){
+    const dots = Array(a).fill("🍎").join("");
+    hb.innerHTML = `<div class="hint-title">💡 分組提示：呢題係 <b>${m} 個 ${a}</b></div>
+      <div class="groups">${Array(m).fill(`<div class="group"><div class="dots">${dots}</div><div class="glabel">每份 ${a} 個</div></div>`).join("")}</div>`;
+    hb.classList.add("show");
+  }else{
+    hb.classList.remove("show"); hb.innerHTML = "";
+  }
+  drawRope();
+}
+function answer(v, btn){
+  if(game.locked) return;
+  game.locked = true;
+  const { a, m, ans } = game.q;
+  const good = v === ans;
+  document.querySelectorAll(".opt").forEach(b => {
+    b.disabled = true;
+    if(+b.dataset.v === ans) b.classList.add("correct");
+    else if(b === btn) b.classList.add("wrong");
+  });
+  const fb = $("feedback");
+  const add = good ? (game.streak >= 2 ? 2 : 1) : -1; // 連對第 3 題起大力一拉
+  const bigPull = good && game.streak >= 2;
+  if(good){ game.streak++; game.right++; game.streakMax = Math.max(game.streakMax, game.streak); sfx.correct(); }
+  else{ game.streak = 0; game.wrong++; sfx.wrong(); document.querySelector(".qcard").classList.add("shake"); setTimeout(()=>document.querySelector(".qcard").classList.remove("shake"), 450); }
+  game.pos += add;
+  const teamEl = add >= 0 ? $("teamL") : $("teamR");
+  teamEl.classList.remove("pull-anim"); void teamEl.offsetWidth; teamEl.classList.add("pull-anim");
+  fb.className = "feedback show " + (good ? "ok" : "no");
+  fb.innerHTML = good
+    ? `${bigPull ? "💪 大力一拉！連對 3 題，一次拉兩格！" : "Pull！🐻 拉多一格！"}　${a} × ${m} = ${ans} ✅
+       <span class="why">點解？${m} 個 ${a}：${Array(m).fill(a).join(" + ")} = ${ans}，所以 ${a} × ${m} = ${ans}。</span>`
+    : `哎呀！🦊 狐狸隊拉走一格！${a} × ${m} 唔係 ${v}。
+       <span class="why">記住：${m} 個 ${a}：${Array(m).fill(a).join(" + ")} = ${ans}，所以 ${a} × ${m} = ${ans}。</span>`;
+  drawRope();
+  if(game.pos >= state.target || game.pos <= -state.target){
+    setTimeout(() => endGame(game.pos >= state.target), good ? 1400 : 2600);
+  }else if(good){
+    setTimeout(nextQuestion, 2400);
+  }else{
+    const cont = document.createElement("button");
+    cont.className = "btn gold cont-btn";
+    cont.textContent = "睇完，繼續拔河 ➜";
+    cont.onclick = () => nextQuestion();
+    fb.appendChild(document.createElement("br"));
+    fb.appendChild(cont);
+    cont.scrollIntoView({behavior:"smooth", block:"nearest"});
+  }
+}
+function endGame(win){
+  if(win){ sfx.win(); confetti(); } else sfx.lose();
+  const total = game.right + game.wrong;
+  const pct = total ? Math.round(game.right / total * 100) : 0;
+  const medal = win ? (game.wrong === 0 ? "🥇 零失誤大力王！" : game.wrong <= 2 ? "🥈 拔河高手！" : "🥉 好嘅開始！") : "💪 唔緊要，再嚟過！";
+  screen.innerHTML = `
+  <div class="panel result-card">
+    <div class="result-emoji">${win ? "🏆" : "🦊"}</div>
+    <div class="big-word ${win ? "win" : "lose"}">${win ? "我哋隊贏咗！" : "狐狸隊贏咗…"}</div>
+    <p class="sub">${win ? "你哋一齊出力，把旗拉過終點線！" : "狐狸隊今次力氣大啲，下一局贏返佢！"}</p>
+    <div class="result-stats">
+      <div class="stat"><b>${game.right}</b><span>答對題數</span></div>
+      <div class="stat"><b>${game.wrong}</b><span>答錯題數</span></div>
+      <div class="stat"><b>${pct}%</b><span>命中率</span></div>
+      <div class="stat"><b>${game.streakMax}</b><span>最長連對</span></div>
+    </div>
+    <p class="sub" style="font-weight:800">${medal}</p>
+    <div class="result-actions">
+      <button class="btn" id="againBtn">🔁 再嚟一局（同一組乘數）</button>
+      <button class="btn blue" id="setupBtn">⚙️ 揀返乘數</button>
+    </div>
+    <div class="teacher-note">
+      課堂提示：拔河結果只反映答題快慢，唔等於理解程度。建議教師抽問學生解釋「點解 ${game.q ? game.q.a : ""} × ${game.q ? game.q.m : ""} = ${game.q ? game.q.ans : ""}」，
+      要求講出「幾多個幾」，先算完成 WHY 檢核。
+    </div>
+  </div>`;
+  $("againBtn").addEventListener("click", startGame);
+  $("setupBtn").addEventListener("click", renderSetup);
+}
+function confetti(){
+  const colors = ["#A32638","#0798BC","#F2C230","#5C8D46","#172A4D"];
+  for(let i = 0; i < 70; i++){
+    const c = document.createElement("i");
+    c.className = "confetti";
+    c.style.left = Math.random() * 100 + "vw";
+    c.style.background = colors[i % colors.length];
+    c.style.animationDuration = (2 + Math.random() * 2) + "s";
+    c.style.animationDelay = Math.random() * .8 + "s";
+    c.style.transform = `rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 5200);
+  }
+}
+
+/* ===================== 事件與啟動 ===================== */
+screen.addEventListener("click", (e) => {
+  const opt = e.target.closest(".opt");
+  if(opt) answer(+opt.dataset.v, opt);
+});
+$("soundBtn").addEventListener("click", () => {
+  state.soundOn = !state.soundOn;
+  $("soundBtn").textContent = state.soundOn ? "🔊" : "🔇";
+  save(); if(state.soundOn) sfx.click();
+});
+$("homeBtn").addEventListener("click", () => { sfx.click(); renderSetup(); });
+$("brandHome").addEventListener("click", renderSetup);
+$("soundBtn").textContent = state.soundOn ? "🔊" : "🔇";
+renderSetup();
+</script>
+</body>
+</html>
