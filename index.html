@@ -134,6 +134,21 @@ h2.title{margin:12px 0 6px;font-size:clamp(22px,3vw,31px);line-height:1.25}
   .team .mascot{font-size:34px}
   .flag{width:28px;height:56px;margin-left:-14px}
 }
+
+.duel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin:14px 0}
+.player{min-width:0;background:#fff;border:3px solid var(--wine);border-radius:22px;padding:14px;text-align:center}
+.player.right{border-color:var(--blue)}
+.player h2{margin:0 0 8px;color:var(--wine);font-size:22px}
+.player.right h2{color:var(--blue-dark)}
+.player .opt{touch-action:manipulation;min-height:68px;padding:12px 6px;background:#fff7f7}
+.player.right .opt{background:#effaff}
+.player .opt.wrong{background:#f6d9d5;opacity:.5}
+.live-feedback{min-height:44px;margin-top:10px;font-size:14px;font-weight:800;line-height:1.5}
+.player-stat{font-weight:800;font-size:13px}
+.shell{min-height:0}.track{height:110px;margin-top:5px}.arena{padding-bottom:6px}
+.flag{transition:left .08s linear}
+@media(max-width:640px){.stage{padding:8px}.duel{gap:6px}.player{padding:8px;border-radius:15px}.player h2{font-size:17px}.player .qtext{font-size:28px}.player .opts{gap:6px}.player .opt{min-height:60px;font-size:24px}.player .qhelp{font-size:12px}.hud{gap:4px}.chip{font-size:12px;padding:5px 8px}.brand p{font-size:10px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -173,9 +188,9 @@ function randInt(min, max){
 }
 /* 乘式口徑：每份數量 × 份數。
    選「2」即練「份數 = 2」：例如 5 × 2 = 2 個 5。 */
-function makeQuestion(tables){
+function makeQuestion(tables, fixedA){
   const m = tables[Math.floor(Math.random() * tables.length)];
-  const a = randInt(1, 10);
+  const a = fixedA ?? randInt(1, 10);
   const ans = a * m;
   const pool = [];
   const cands = [a * (m + 1), a * (m - 1), (a + 1) * m, (a - 1) * m,
@@ -239,6 +254,7 @@ const sfx = {
 
 /* ===================== 畫面：設定 ===================== */
 function renderSetup(){
+  if(game) game.ended=true;
   document.title = "乘數拔河｜郭怡雅小二乘法";
   const chips = [2,3,4,5,6,7,8,9].map(n =>
     `<button class="mchip ${state.tables.includes(n) ? "on" : ""}" data-n="${n}" aria-pressed="${state.tables.includes(n)}">
@@ -250,7 +266,7 @@ function renderSetup(){
   <div class="panel">
     <span class="kicker">⛹️ 小二數學・乘法鞏固</span>
     <h2 class="title">揀好乘數，一齊拔河！</h2>
-    <p class="sub">答對一題，我哋隊就拉繩一格；答錯就會被對手拉走。<br>旗幟拉過你嗰邊白線就贏！連續答對 3 題有<strong>大力一拉</strong>！</p>
+    <p class="sub">兩位同學分坐左右，同時回答各自不同嘅題目！<br>答對即拉一格、即刻換題，唔使等對手；答錯原題再試。</p>
     <div class="chip-row" id="chipRow">${chips}</div>
     <div class="preset-row">
       <button class="btn small ghost" data-preset="all">✅ 全選 2–9</button>
@@ -262,7 +278,7 @@ function renderSetup(){
     <div class="seg" id="segTarget">${segs}</div>
     <label class="toggle-row"><input type="checkbox" id="hintToggle" ${state.hintOn ? "checked" : ""}> 顯示分組提示圖（份份分明，答題前可睇）</label>
     <div class="startbar">
-      <button class="btn" id="startBtn" disabled>🪢 開始拔河！</button>
+      <button class="btn" id="startBtn" disabled>⚡ 開始雙人即時對決！</button>
     </div>
     <div class="teacher-note">
       教學口徑：乘式一律「每份數量 × 份數」（例：2 個 3 寫成 3 × 2），與課堂 2N3 教學一致；本遊戲不教授乘法交換性質。
@@ -303,132 +319,97 @@ function updateCount(){
 
 /* ===================== 畫面：拔河 ===================== */
 const TEAMS = {
-  left:  { name: "小熊隊（我哋）",  emoji: "🐻" },
-  right: { name: "狐狸隊（對手）", emoji: "🦊" },
+  left: {name:"小熊隊", emoji:"🐻"},
+  right: {name:"狐狸隊", emoji:"🦊"}
 };
 let game = null;
 function startGame(){
-  if(state.tables.length === 0) return;
-  game = { pos: 0, streak: 0, streakMax: 0, right: 0, wrong: 0, q: null, locked: false };
-  document.title = "乘數拔河｜比緊賽！";
+  if(!state.tables.length) return;
+  game = {pos:0, ended:false, left:{right:0,wrong:0,streak:0,mistakes:[]}, right:{right:0,wrong:0,streak:0,mistakes:[]}};
+  document.title = "乘數拔河｜雙人即時對決";
   screen.innerHTML = `
-  <div class="hud">
-    <span class="chip">⚔️ 邊個先拉 <b>${state.target}</b> 格就贏</span>
-    <span class="chip" id="streakChip">🔥 連對 0</span>
-    <span class="chip" id="scoreChip">🐻 ${game.right} : ${game.wrong} 🦊</span>
-  </div>
-  <div class="arena" id="arena">
-    <span class="cloud">☁️</span><span class="cloud c2">⛅</span>
-    <div class="team left" id="teamL" style="--yank:-14px"><div class="mascot">${TEAMS.left.emoji}</div><div class="tname">${TEAMS.left.name}</div></div>
-    <div class="team right" id="teamR" style="--yank:14px"><div class="mascot">${TEAMS.right.emoji}</div><div class="tname">${TEAMS.right.name}</div></div>
-    <div class="track">
-      <div class="goal left"></div><div class="goal right"></div>
-      <div class="rope"></div>
+    <div class="hud"><span class="chip hot">⚡ 雙人即時對決</span><span class="chip">拉到自己一邊 ${state.target} 格就贏</span><span class="chip" id="scoreChip"></span></div>
+    <div class="arena"><div class="track">
+      <div class="goal left"></div><div class="goal right"></div><div class="rope"></div>
       <div class="flag" id="flag" style="left:50%"><div class="cloth">🏆</div><div class="pole"></div></div>
-    </div>
-  </div>
-  <div class="qcard">
-    <p class="qhelp">睇下呢題乘法，答案係邊個？</p>
-    <div class="qtext" id="qtext"></div>
-    <div class="opts" id="opts"></div>
-  </div>
-  <div class="hint-box" id="hintBox"></div>
-  <div class="feedback" id="feedback"></div>`;
-  nextQuestion();
+      <div class="team left" id="teamL"><div class="mascot">🐻</div><div class="tname">小熊隊 ←</div></div>
+      <div class="team right" id="teamR"><div class="mascot">🦊</div><div class="tname">→ 狐狸隊</div></div>
+    </div></div>
+    <div class="duel">${["left","right"].map(side=>`
+      <section class="player ${side}" id="player-${side}" aria-label="${TEAMS[side].name}答題區">
+        <h2>${TEAMS[side].emoji} ${TEAMS[side].name}</h2>
+        <div class="qtext" id="q-${side}"></div>
+        <p class="qhelp" id="meaning-${side}"></p>
+        <div class="opts" id="opts-${side}"></div>
+        <div class="live-feedback" id="fb-${side}" role="status">準備好就即刻答！</div>
+        <div class="hint-box" id="hint-${side}"></div>
+        <div class="player-stat" id="stats-${side}"></div>
+      </section>`).join("")}</div>`;
+  nextQuestion("left");
+  nextQuestion("right");
+  drawRope();
 }
 function drawRope(){
-  const flag = $("flag");
-  if(flag) flag.style.left = clampPct(game.pos) + "%";
-  $("scoreChip").textContent = `🐻 ${game.right} : ${game.wrong} 🦊`;
-  $("streakChip").textContent = `🔥 連對 ${game.streak}`;
-  $("streakChip").classList.toggle("hot", game.streak >= 2);
-}
-function nextQuestion(){
-  game.q = makeQuestion(state.tables);
-  game.locked = false;
-  const { a, m, opts } = game.q;
-  $("qtext").innerHTML = `<span class="m1">${a}</span> × <span class="m2">${m}</span> = ?`;
-  $("feedback").className = "feedback"; $("feedback").textContent = "";
-  $("opts").innerHTML = opts.map((o,i) =>
-    `<button class="opt" data-v="${o}">${o}</button>`).join("");
-  const hb = $("hintBox");
-  if(state.hintOn){
-    const dots = Array(a).fill("🍎").join("");
-    hb.innerHTML = `<div class="hint-title">💡 分組提示：呢題係 <b>${m} 個 ${a}</b></div>
-      <div class="groups">${Array(m).fill(`<div class="group"><div class="dots">${dots}</div><div class="glabel">每份 ${a} 個</div></div>`).join("")}</div>`;
-    hb.classList.add("show");
-  }else{
-    hb.classList.remove("show"); hb.innerHTML = "";
-  }
-  drawRope();
-}
-function answer(v, btn){
-  if(game.locked) return;
-  game.locked = true;
-  const { a, m, ans } = game.q;
-  const good = v === ans;
-  document.querySelectorAll(".opt").forEach(b => {
-    b.disabled = true;
-    if(+b.dataset.v === ans) b.classList.add("correct");
-    else if(b === btn) b.classList.add("wrong");
-  });
-  const fb = $("feedback");
-  const add = good ? (game.streak >= 2 ? 2 : 1) : -1; // 連對第 3 題起大力一拉
-  const bigPull = good && game.streak >= 2;
-  if(good){ game.streak++; game.right++; game.streakMax = Math.max(game.streakMax, game.streak); sfx.correct(); }
-  else{ game.streak = 0; game.wrong++; sfx.wrong(); document.querySelector(".qcard").classList.add("shake"); setTimeout(()=>document.querySelector(".qcard").classList.remove("shake"), 450); }
-  game.pos += add;
-  const teamEl = add >= 0 ? $("teamL") : $("teamR");
-  teamEl.classList.remove("pull-anim"); void teamEl.offsetWidth; teamEl.classList.add("pull-anim");
-  fb.className = "feedback show " + (good ? "ok" : "no");
-  fb.innerHTML = good
-    ? `${bigPull ? "💪 大力一拉！連對 3 題，一次拉兩格！" : "Pull！🐻 拉多一格！"}　${a} × ${m} = ${ans} ✅
-       <span class="why">點解？${m} 個 ${a}：${Array(m).fill(a).join(" + ")} = ${ans}，所以 ${a} × ${m} = ${ans}。</span>`
-    : `哎呀！🦊 狐狸隊拉走一格！${a} × ${m} 唔係 ${v}。
-       <span class="why">記住：${m} 個 ${a}：${Array(m).fill(a).join(" + ")} = ${ans}，所以 ${a} × ${m} = ${ans}。</span>`;
-  drawRope();
-  if(game.pos >= state.target || game.pos <= -state.target){
-    setTimeout(() => endGame(game.pos >= state.target), good ? 1400 : 2600);
-  }else if(good){
-    setTimeout(nextQuestion, 2400);
-  }else{
-    const cont = document.createElement("button");
-    cont.className = "btn gold cont-btn";
-    cont.textContent = "睇完，繼續拔河 ➜";
-    cont.onclick = () => nextQuestion();
-    fb.appendChild(document.createElement("br"));
-    fb.appendChild(cont);
-    cont.scrollIntoView({behavior:"smooth", block:"nearest"});
+  $("flag").style.left = (50 - game.pos/state.target*42)+"%";
+  $("scoreChip").textContent = `🐻 ${game.left.right} : ${game.right.right} 🦊`;
+  for(const side of ["left","right"]){
+    const p=game[side];
+    $("stats-"+side).textContent=`✅ ${p.right} 題　🔥 連對 ${p.streak}`;
   }
 }
-function endGame(win){
-  if(win){ sfx.win(); confetti(); } else sfx.lose();
-  const total = game.right + game.wrong;
-  const pct = total ? Math.round(game.right / total * 100) : 0;
-  const medal = win ? (game.wrong === 0 ? "🥇 零失誤大力王！" : game.wrong <= 2 ? "🥈 拔河高手！" : "🥉 好嘅開始！") : "💪 唔緊要，再嚟過！";
-  screen.innerHTML = `
-  <div class="panel result-card">
-    <div class="result-emoji">${win ? "🏆" : "🦊"}</div>
-    <div class="big-word ${win ? "win" : "lose"}">${win ? "我哋隊贏咗！" : "狐狸隊贏咗…"}</div>
-    <p class="sub">${win ? "你哋一齊出力，把旗拉過終點線！" : "狐狸隊今次力氣大啲，下一局贏返佢！"}</p>
-    <div class="result-stats">
-      <div class="stat"><b>${game.right}</b><span>答對題數</span></div>
-      <div class="stat"><b>${game.wrong}</b><span>答錯題數</span></div>
-      <div class="stat"><b>${pct}%</b><span>命中率</span></div>
-      <div class="stat"><b>${game.streakMax}</b><span>最長連對</span></div>
-    </div>
-    <p class="sub" style="font-weight:800">${medal}</p>
-    <div class="result-actions">
-      <button class="btn" id="againBtn">🔁 再嚟一局（同一組乘數）</button>
-      <button class="btn blue" id="setupBtn">⚙️ 揀返乘數</button>
-    </div>
-    <div class="teacher-note">
-      課堂提示：拔河結果只反映答題快慢，唔等於理解程度。建議教師抽問學生解釋「點解 ${game.q ? game.q.a : ""} × ${game.q ? game.q.m : ""} = ${game.q ? game.q.ans : ""}」，
-      要求講出「幾多個幾」，先算完成 WHY 檢核。
-    </div>
+function nextQuestion(side){
+  const p=game[side], other=game[side==="left"?"right":"left"].q;
+  const candidates=state.tables.flatMap(m=>Array.from({length:10},(_,i)=>({a:i+1,m})))
+    .filter(q=>(!other || q.a!==other.a || q.m!==other.m) && (!p.q || q.a!==p.q.a || q.m!==p.q.m));
+  const chosen=candidates[randInt(0,candidates.length-1)];
+  const q=makeQuestion([chosen.m], chosen.a);
+  p.q=q; p.id=(p.id||0)+1;
+  $("q-"+side).textContent=`${q.a} × ${q.m} = ?`;
+  $("meaning-"+side).textContent=`${q.m} 個 ${q.a}，一共有幾多？`;
+  $("opts-"+side).innerHTML=q.opts.map(v=>`<button class="opt" data-side="${side}" data-id="${p.id}" data-v="${v}">${v}</button>`).join("");
+  const hb=$("hint-"+side);
+  hb.className="hint-box"+(state.hintOn?" show":"");
+  hb.innerHTML=state.hintOn?`<div class="groups">${Array(q.m).fill(`<div class="group"><div class="dots">${"🍎".repeat(q.a)}</div></div>`).join("")}</div>`:"";
+}
+function answer(v,btn){
+  const side=btn.dataset.side;
+  if(!game || game.ended || !side || !btn.isConnected) return;
+  const p=game[side];
+  if(+btn.dataset.id!==p.id || btn.disabled) return;
+  const q=p.q, good=v===q.ans;
+  if(good){
+    p.right++; p.streak++;
+    game.pos+=side==="left"?1:-1;
+    sfx.correct();
+    $("fb-"+side).textContent=`✅ ${q.a} × ${q.m} = ${q.ans}！拉一格！`;
+    drawRope();
+    if(Math.abs(game.pos)>=state.target){ game.ended=true; endGame(side); return; }
+    nextQuestion(side);
+  }else{
+    p.wrong++; p.streak=0; p.mistakes.push({...q});
+    btn.disabled=true; btn.classList.add("wrong");
+    $("fb-"+side).textContent="再諗一諗！揀另一個答案。";
+    sfx.wrong(); drawRope();
+  }
+}
+function endGame(winner){
+  sfx.win(); confetti();
+  screen.innerHTML=`<div class="panel result-card">
+    <div class="result-emoji">${TEAMS[winner].emoji} 🏆</div>
+    <h2 class="big-word win">${TEAMS[winner].name}贏咗！</h2>
+    <div class="duel">${["left","right"].map(side=>{
+      const p=game[side], q=p.mistakes[0]||p.q;
+      return `<section class="player ${side}"><h2>${TEAMS[side].emoji} ${TEAMS[side].name}</h2>
+        <p>答對 ${p.right} 題 · 答錯 ${p.wrong} 次</p>
+        <p><b>一齊講點解：</b><br>${q.m} 個 ${q.a}：<br>${Array(q.m).fill(q.a).join(" + ")} = ${q.ans}</p>
+        <p>用積木砌出 ${q.m} 份，每份 ${q.a} 粒，再數一次。</p>
+        <p>換個情境：每袋有 ${q.a} 個蘋果，${q.m} 袋有幾多個？</p></section>`;
+    }).join("")}</div>
+    <div class="result-actions"><button class="btn" id="againBtn">🔁 再決勝負</button><button class="btn blue" id="setupBtn">⚙️ 揀乘數</button></div>
+    <p class="teacher-note">比賽只反映答題表現；兩位同學各自解釋、砌出及解答變化題，由老師確認理解。</p>
   </div>`;
-  $("againBtn").addEventListener("click", startGame);
-  $("setupBtn").addEventListener("click", renderSetup);
+  $("againBtn").onclick=startGame;
+  $("setupBtn").onclick=renderSetup;
 }
 function confetti(){
   const colors = ["#A32638","#0798BC","#F2C230","#5C8D46","#172A4D"];
